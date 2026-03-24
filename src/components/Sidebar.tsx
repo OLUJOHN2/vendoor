@@ -11,8 +11,6 @@ interface FetchResponse {
 
 const Sidebar = () => {
   const {
-    searchQuery,
-    setSearchQuery,
     selectedCategory,
     setSelectedCategory,
     minPrice,
@@ -26,7 +24,7 @@ const Sidebar = () => {
   const [keywords] = useState<string[]>([
     "apple",
     "watch",
-    "Fashion",
+    "fashion",
     "trend",
     "shoes",
     "shirt",
@@ -37,117 +35,110 @@ const Sidebar = () => {
       try {
         const response = await fetch("https://dummyjson.com/products");
         const data: FetchResponse = await response.json();
-        // console.log(data.products);
+
         const uniqueCategories = Array.from(
           new Set(data.products.map((product) => product.category)),
         );
+
         setCategories(uniqueCategories);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching categories:", error);
       }
     };
 
     fetchCategories();
   }, []);
 
-  const handleRadioChangeCategories = (category: string) => {
-    setSelectedCategory(category);
-  };
-
-  const handleKeywordClick = (keyword: string) => {
-    setKeyword(keyword);
-  };
-
   const handleResetFilters = () => {
-    setSearchQuery("");
     setSelectedCategory("");
     setMinPrice(undefined);
     setMaxPrice(undefined);
     setKeyword("");
   };
 
-  const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setMinPrice(value ? parseFloat(value) : undefined);
-  };
-
-  const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setMaxPrice(value ? parseFloat(value) : undefined);
-  };
-
   return (
-    <div className="w-64 p-5 h-screen">
-      <h1 className="text-2xl font-bold mb-10 mt-4">React Store</h1>
+    <div className="w-64 p-6 bg-surface border-r border-gray-100 h-full">
+      {/* Title */}
+      <h2 className="text-lg font-semibold text-textMain mb-6">Filters</h2>
 
-      <section>
-        <input
-          type="text"
-          className="border-2 rounded px-2 p-2 sm:mb-0"
-          placeholder="Search Product"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <div className="flex justify-center items-center">
+      {/* Categories */}
+      <div className="mb-8">
+        <h3 className="text-sm font-medium text-textSub mb-3">Categories</h3>
+
+        <div className="flex flex-wrap gap-2">
+          {categories.map((category, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-3 py-1.5 text-sm rounded-full border transition ${
+                selectedCategory === category
+                  ? "bg-primary text-white border-primary"
+                  : "bg-gray-100 text-textMain hover:bg-gray-200"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Price Range */}
+      <div className="mb-8">
+        <h3 className="text-sm font-medium text-textSub mb-3">Price Range</h3>
+
+        <div className="flex gap-2">
           <input
             type="number"
-            className="border-2 mr-2 px-5 py-3 mb-3 w-full"
             placeholder="Min"
             value={minPrice ?? ""}
-            onChange={handleMinPriceChange}
+            onChange={(e) =>
+              setMinPrice(
+                e.target.value ? parseFloat(e.target.value) : undefined,
+              )
+            }
+            className="w-full bg-gray-100 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
           />
+
           <input
             type="number"
-            className="border-2  px-5 py-3 mb-5 mt-2 w-full"
             placeholder="Max"
             value={maxPrice ?? ""}
-            onChange={handleMaxPriceChange}
+            onChange={(e) =>
+              setMaxPrice(
+                e.target.value ? parseFloat(e.target.value) : undefined,
+              )
+            }
+            className="w-full bg-gray-100 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
+      </div>
 
-        {/* Categories Section */}
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold mb-3">Categories</h2>
-          <div>
-            {categories.map((category, index) => (
-              <label key={index} className="block mb-2">
-                <input
-                  type="radio"
-                  name="category"
-                  value={category}
-                  onChange={() => handleRadioChangeCategories(category)}
-                  checked={selectedCategory === category}
-                  className="mr-2 w-[16px] h-[16px]"
-                />
-                {category.toUpperCase()}
-              </label>
-            ))}
-          </div>
+      {/* Keywords */}
+      <div className="mb-8">
+        <h3 className="text-sm font-medium text-textSub mb-3">
+          Popular Searches
+        </h3>
+
+        <div className="flex flex-wrap gap-2">
+          {keywords.map((keyword, index) => (
+            <button
+              key={index}
+              onClick={() => setKeyword(keyword)}
+              className="px-3 py-1.5 text-sm rounded-full bg-gray-100 hover:bg-gray-200 transition"
+            >
+              {keyword}
+            </button>
+          ))}
         </div>
+      </div>
 
-        {/* Keywords Section */}
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold mb-3">Keywords</h2>
-          <div>
-            {keywords.map((keyword, index) => (
-              <button
-                key={index}
-                onClick={() => handleKeywordClick(keyword)}
-                className="block mb-2 px-4 py-2 w-full text-left border rounded hover:bg-gray-200"
-              >
-                {keyword.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <button
-          onClick={handleResetFilters}
-          className="w-full mb-[4rem] py-2 bg-black text-white rounded mt-5"
-        >
-          Reset Filters
-        </button>
-      </section>
+      {/* Reset Button */}
+      <button
+        onClick={handleResetFilters}
+        className="w-full py-2 bg-primary text-white rounded-lg hover:bg-secondary transition"
+      >
+        Reset Filters
+      </button>
     </div>
   );
 };

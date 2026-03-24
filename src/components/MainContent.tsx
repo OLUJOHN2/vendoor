@@ -12,15 +12,23 @@ const MainContent = () => {
   const [filter, setFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const itemsPerPage = 12;
 
+  const isFiltering = selectedCategory || keyword;
+
+  // ✅ Fetch products
   useEffect(() => {
-    let url = `https://dummyjson.com/products?limit=${itemsPerPage}&skip=${
-      (currentPage - 1) * itemsPerPage
-    }`;
+    let url = "";
 
     if (keyword) {
       url = `https://dummyjson.com/products/search?q=${keyword}`;
+    } else if (selectedCategory) {
+      url = `https://dummyjson.com/products/category/${selectedCategory}`;
+    } else {
+      url = `https://dummyjson.com/products?limit=${itemsPerPage}&skip=${
+        (currentPage - 1) * itemsPerPage
+      }`;
     }
 
     axios
@@ -31,49 +39,46 @@ const MainContent = () => {
       .catch((error) => {
         console.error("Error fetching data: ", error);
       });
-  }, [currentPage, keyword]);
+  }, [currentPage, keyword, selectedCategory]);
 
+  // ✅ Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, keyword]);
+
+  // ✅ Apply local filters (price + search input)
   const getFilteredProducts = () => {
-    let filteredProducts = products;
-
-    if (selectedCategory) {
-      filteredProducts = filteredProducts.filter(
-        (product) => product.category === selectedCategory,
-      );
-    }
+    let filtered = [...products];
 
     if (minPrice !== undefined) {
-      filteredProducts = filteredProducts.filter(
-        (product) => product.price >= minPrice,
-      );
+      filtered = filtered.filter((p) => p.price >= minPrice);
     }
 
     if (maxPrice !== undefined) {
-      filteredProducts = filteredProducts.filter(
-        (product) => product.price <= maxPrice,
-      );
+      filtered = filtered.filter((p) => p.price <= maxPrice);
     }
 
     if (searchQuery) {
-      filteredProducts = filteredProducts.filter((product) =>
-        product.title.toLowerCase().includes(searchQuery.toLowerCase()),
+      filtered = filtered.filter((p) =>
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
     switch (filter) {
       case "expensive":
-        return filteredProducts.sort((a, b) => b.price - a.price);
+        return filtered.sort((a, b) => b.price - a.price);
       case "cheap":
-        return filteredProducts.sort((a, b) => a.price - b.price);
+        return filtered.sort((a, b) => a.price - b.price);
       case "popular":
-        return filteredProducts.sort((a, b) => b.rating - a.rating);
+        return filtered.sort((a, b) => b.rating - a.rating);
       default:
-        return filteredProducts;
+        return filtered;
     }
   };
 
   const filteredProducts = getFilteredProducts();
 
+  // Pagination
   const totalProducts = 100;
   const totalPages = Math.ceil(totalProducts / itemsPerPage);
 
@@ -91,6 +96,7 @@ const MainContent = () => {
     if (currentPage - 2 < 1) {
       endPage = Math.min(totalPages, endPage + (2 - (currentPage - 1)));
     }
+
     if (currentPage + 2 > totalPages) {
       startPage = Math.max(1, startPage - (2 - (totalPages - currentPage)));
     }
@@ -103,45 +109,50 @@ const MainContent = () => {
   };
 
   return (
-    <section className="xl:w-[55rem] lg:w-[55rem] sm:w-[40rem] xs:w-[20rem] p-5">
-      <div className="mb-5">
-        <div className="flex flex-col sm:flex-row justify-between items-center">
-          <div className="relative mb-5 mt-5">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="border px-4 py-2 rounded-full flex items-center"
-            >
-              <Tally3 className="mr-2" />
-              {filter === "all"
-                ? "Filter"
-                : filter.charAt(0).toUpperCase() + filter.slice(1)}
-            </button>
-            {dropdownOpen && (
-              <div className="absolute bg-white border border-gray-300 rounded mt-2 w-full sm:w-40">
-                <button
-                  onClick={() => setFilter("cheap")}
-                  className="block px-4 py-2 w-full text-left hover:bg-gray-200"
-                >
-                  Cheap
-                </button>
-                <button
-                  onClick={() => setFilter("expensive")}
-                  className="block px-4 py-2 w-full text-left hover:bg-gray-200"
-                >
-                  Expensive
-                </button>
-                <button
-                  onClick={() => setFilter("popular")}
-                  className="block px-4 py-2 w-full text-left hover:bg-gray-200"
-                >
-                  Popular
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+    <section className="p-8 space-y-6">
+      {/* Filter Dropdown */}
+      <div className="flex justify-between items-center">
+        <div className="relative">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="border px-4 py-2 rounded-full flex items-center bg-surface hover:bg-gray-100 transition"
+          >
+            <Tally3 className="mr-2" />
+            {filter === "all"
+              ? "Sort"
+              : filter.charAt(0).toUpperCase() + filter.slice(1)}
+          </button>
 
-        <div className="grid grid-cols-4 sm:grid-cols-3 md:grid-cols-4 gap-5">
+          {dropdownOpen && (
+            <div className="absolute bg-white border border-gray-200 rounded-lg mt-2 w-40 shadow-sm">
+              <button
+                onClick={() => setFilter("cheap")}
+                className="block px-4 py-2 w-full text-left hover:bg-gray-100"
+              >
+                Cheapest
+              </button>
+              <button
+                onClick={() => setFilter("expensive")}
+                className="block px-4 py-2 w-full text-left hover:bg-gray-100"
+              >
+                Most Expensive
+              </button>
+              <button
+                onClick={() => setFilter("popular")}
+                className="block px-4 py-2 w-full text-left hover:bg-gray-100"
+              >
+                Most Popular
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Products Grid */}
+      {filteredProducts.length === 0 ? (
+        <p className="text-textSub">No products found.</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {filteredProducts.map((product) => (
             <BookCard
               key={product.id}
@@ -152,39 +163,42 @@ const MainContent = () => {
             />
           ))}
         </div>
+      )}
 
-        <div className="flex flex-col sm:flex-row justify-between items-center mt-5">
+      {/* Pagination (only when NOT filtering) */}
+      {!isFiltering && (
+        <div className="flex justify-center items-center gap-2 mt-6">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="border px-4 py-2 mx-2 rounded-full"
+            className="px-4 py-2 rounded-full border bg-surface hover:bg-gray-100 disabled:opacity-50"
           >
-            Previous
+            Prev
           </button>
 
-          <div className="flex flex-wrap justify-center">
-            {getPaginationButtons().map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`border px-4 py-2 mx-1 rounded-full ${
-                  page === currentPage ? "bg-black text-white" : ""
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-          </div>
+          {getPaginationButtons().map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-4 py-2 rounded-full border ${
+                page === currentPage
+                  ? "bg-primary text-white"
+                  : "bg-surface hover:bg-gray-100"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
 
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="border px-4 py-2 mx-2 rounded-full"
+            className="px-4 py-2 rounded-full border bg-surface hover:bg-gray-100 disabled:opacity-50"
           >
             Next
           </button>
         </div>
-      </div>
+      )}
     </section>
   );
 };
