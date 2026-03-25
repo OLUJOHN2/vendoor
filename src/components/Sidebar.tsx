@@ -32,7 +32,7 @@ const Sidebar = ({ onClose }: { onClose: () => void }) => {
         ✕ Close
       </button>
 
-      <h2 className="text-lg font-semibold mb-6">Filters</h2>
+      <h2 className="text-lg font-semibold mb-6 mt-15">Filters</h2>
 
       <div className="mb-8">
         <h3 className="text-sm mb-3">Categories</h3>

@@ -26,7 +26,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
   };
 
   return (
-    <nav className="flex items-center justify-between px-6 py-4 bg-surface shadow sticky top-0 z-50">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-surface/95 backdrop-blur-md shadow-md h-16 flex items-center justify-between px-6">
       {/* LEFT: menu + logo */}
       <div className="flex items-center gap-3">
         <button
@@ -73,9 +73,9 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
           <div
             onClick={() => {
               if (!user) {
-                navigate("/login"); // redirect if not logged in
+                navigate("/login");
               } else {
-                setUserDropdown(!userDropdown); // toggle dropdown if logged in
+                setUserDropdown(!userDropdown);
               }
             }}
             className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary"

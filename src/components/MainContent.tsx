@@ -109,7 +109,7 @@ const MainContent = () => {
   };
 
   return (
-    <section className="p-8 space-y-6">
+    <section className="p-8 space-y-6 mt-5">
       {/* Filter Dropdown */}
       <div className="flex justify-between items-center">
         <div className="relative">
