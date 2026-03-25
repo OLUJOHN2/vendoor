@@ -5,7 +5,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFilter } from "./FilterContext";
 
-const Navbar: React.FC<any> = ({ onMenuClick }) => {
+interface NavbarProps {
+  onMenuClick?: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
   const { totalItems } = useCart();
   const { user, logout } = useUser();
   const { setSearchQuery } = useFilter();
@@ -23,7 +27,7 @@ const Navbar: React.FC<any> = ({ onMenuClick }) => {
 
   return (
     <nav className="flex items-center justify-between px-6 py-4 bg-surface shadow sticky top-0 z-50">
-      {/* LEFT */}
+      {/* LEFT: menu + logo */}
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
@@ -32,7 +36,11 @@ const Navbar: React.FC<any> = ({ onMenuClick }) => {
           ☰
         </button>
 
-        <Link to="/" className="text-xl font-bold text-primary">
+        <Link
+          to="/"
+          className="text-xl font-bold flex items-center gap-2 text-primary"
+        >
+          <img src="logo3.png" alt="Vendoor Logo" className="h-10 w-auto" />
           Vendoor
         </Link>
       </div>
@@ -48,8 +56,9 @@ const Navbar: React.FC<any> = ({ onMenuClick }) => {
         />
       </div>
 
-      {/* RIGHT */}
+      {/* RIGHT: cart + user */}
       <div className="flex items-center gap-6">
+        {/* Cart */}
         <Link to="/cart" className="relative">
           <ShoppingCart size={24} />
           {totalItems > 0 && (
@@ -59,13 +68,14 @@ const Navbar: React.FC<any> = ({ onMenuClick }) => {
           )}
         </Link>
 
+        {/* User */}
         <div className="relative">
           <div
             onClick={() => {
               if (!user) {
-                navigate("/login");
+                navigate("/login"); // redirect if not logged in
               } else {
-                setUserDropdown(!userDropdown);
+                setUserDropdown(!userDropdown); // toggle dropdown if logged in
               }
             }}
             className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary"
