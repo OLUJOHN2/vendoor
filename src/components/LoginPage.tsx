@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useUser } from "./Navbar";
+import { useUser } from "./UserContext"; // <-- FIXED
 import { useNavigate, Link } from "react-router-dom";
 
 const LoginPage: React.FC = () => {

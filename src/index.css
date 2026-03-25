@@ -4,6 +4,31 @@
 
 @import "tailwindcss";
 
-body {
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+/* body {
   font-family: "Inter", sans-serif;
+}
+ */
+
+/* Global base */
+body {
+  /* @apply bg-background text-text-primary; */
+  font-family: system-ui, sans-serif;
+}
+
+/* Smooth feel everywhere */
+* {
+  @apply transition-all duration-200;
+}
+
+/* Optional scrollbar glow (small but premium) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c7d2fe;
+  border-radius: 10px;
 }

@@ -1,15 +1,7 @@
 import { useState, useEffect } from "react";
 import { useFilter } from "./FilterContext";
 
-interface Product {
-  category: string;
-}
-
-interface FetchResponse {
-  products: Product[];
-}
-
-const Sidebar = () => {
+const Sidebar = ({ onClose }: { onClose: () => void }) => {
   const {
     selectedCategory,
     setSelectedCategory,
@@ -21,59 +13,39 @@ const Sidebar = () => {
   } = useFilter();
 
   const [categories, setCategories] = useState<string[]>([]);
-  const [keywords] = useState<string[]>([
-    "apple",
-    "watch",
-    "fashion",
-    "trend",
-    "shoes",
-    "shirt",
-  ]);
+  const [keywords] = useState(["apple", "watch", "fashion", "shoes"]);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("https://dummyjson.com/products");
-        const data: FetchResponse = await response.json();
-
-        const uniqueCategories = Array.from(
-          new Set(data.products.map((product) => product.category)),
+    fetch("https://dummyjson.com/products")
+      .then((res) => res.json())
+      .then((data) => {
+        const unique = Array.from(
+          new Set(data.products.map((p: any) => p.category)),
         );
-
-        setCategories(uniqueCategories);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
-    fetchCategories();
+        setCategories(unique);
+      });
   }, []);
 
-  const handleResetFilters = () => {
-    setSelectedCategory("");
-    setMinPrice(undefined);
-    setMaxPrice(undefined);
-    setKeyword("");
-  };
-
   return (
-    <div className="w-64 p-6 bg-surface border-r border-gray-100 h-full">
-      {/* Title */}
-      <h2 className="text-lg font-semibold text-textMain mb-6">Filters</h2>
+    <div className="p-6 h-full overflow-y-auto">
+      <button onClick={onClose} className="lg:hidden mb-4">
+        ✕ Close
+      </button>
 
-      {/* Categories */}
+      <h2 className="text-lg font-semibold mb-6">Filters</h2>
+
       <div className="mb-8">
-        <h3 className="text-sm font-medium text-textSub mb-3">Categories</h3>
+        <h3 className="text-sm mb-3">Categories</h3>
 
         <div className="flex flex-wrap gap-2">
-          {categories.map((category, index) => (
+          {categories.map((category, i) => (
             <button
-              key={index}
+              key={i}
               onClick={() => setSelectedCategory(category)}
-              className={`px-3 py-1.5 text-sm rounded-full border transition ${
+              className={`px-3 py-1.5 text-sm rounded-full ${
                 selectedCategory === category
-                  ? "bg-primary text-white border-primary"
-                  : "bg-gray-100 text-textMain hover:bg-gray-200"
+                  ? "bg-primary text-white"
+                  : "bg-gray-100 hover:bg-primary hover:text-white"
               }`}
             >
               {category}
@@ -82,9 +54,8 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Price Range */}
       <div className="mb-8">
-        <h3 className="text-sm font-medium text-textSub mb-3">Price Range</h3>
+        <h3 className="text-sm mb-3">Price</h3>
 
         <div className="flex gap-2">
           <input
@@ -92,52 +63,48 @@ const Sidebar = () => {
             placeholder="Min"
             value={minPrice ?? ""}
             onChange={(e) =>
-              setMinPrice(
-                e.target.value ? parseFloat(e.target.value) : undefined,
-              )
+              setMinPrice(e.target.value ? Number(e.target.value) : undefined)
             }
-            className="w-full bg-gray-100 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
+            className="w-full bg-gray-100 rounded-lg px-3 py-2"
           />
-
           <input
             type="number"
             placeholder="Max"
             value={maxPrice ?? ""}
             onChange={(e) =>
-              setMaxPrice(
-                e.target.value ? parseFloat(e.target.value) : undefined,
-              )
+              setMaxPrice(e.target.value ? Number(e.target.value) : undefined)
             }
-            className="w-full bg-gray-100 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
+            className="w-full bg-gray-100 rounded-lg px-3 py-2"
           />
         </div>
       </div>
 
-      {/* Keywords */}
       <div className="mb-8">
-        <h3 className="text-sm font-medium text-textSub mb-3">
-          Popular Searches
-        </h3>
+        <h3 className="text-sm mb-3">Keywords</h3>
 
         <div className="flex flex-wrap gap-2">
-          {keywords.map((keyword, index) => (
+          {keywords.map((k, i) => (
             <button
-              key={index}
-              onClick={() => setKeyword(keyword)}
-              className="px-3 py-1.5 text-sm rounded-full bg-gray-100 hover:bg-gray-200 transition"
+              key={i}
+              onClick={() => setKeyword(k)}
+              className="px-3 py-1.5 text-sm rounded-full bg-gray-100 hover:bg-primary hover:text-white"
             >
-              {keyword}
+              {k}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Reset Button */}
       <button
-        onClick={handleResetFilters}
-        className="w-full py-2 bg-primary text-white rounded-lg hover:bg-secondary transition"
+        onClick={() => {
+          setSelectedCategory("");
+          setMinPrice(undefined);
+          setMaxPrice(undefined);
+          setKeyword("");
+        }}
+        className="w-full py-2 bg-primary text-white rounded-lg"
       >
-        Reset Filters
+        Reset
       </button>
     </div>
   );
