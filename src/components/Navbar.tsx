@@ -1,31 +1,25 @@
 import { ShoppingCart, User } from "lucide-react";
 import { useCart } from "./CartContext";
+import { useUser } from "./UserContext";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-interface Product {
-  id: string;
-  title: string;
-  image: string;
-  price: number;
-}
-
-interface NavbarProps {
+const Navbar: React.FC<{
   products: Product[];
   onSearchResults: (results: Product[]) => void;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ products, onSearchResults }) => {
+}> = ({ products, onSearchResults }) => {
   const { totalItems } = useCart();
+  const { user, logout } = useUser();
   const [userDropdown, setUserDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
 
     if (value.trim() === "") {
-      onSearchResults(products); // show all if input is empty
+      onSearchResults(products);
       return;
     }
 
@@ -37,12 +31,12 @@ const Navbar: React.FC<NavbarProps> = ({ products, onSearchResults }) => {
 
   return (
     <nav className="flex items-center justify-between px-8 py-4 bg-surface shadow sticky top-0 z-50">
-      {/* Left: Logo */}
+      {/* Logo */}
       <Link to="/" className="text-xl font-bold text-textMain">
         Vendoor
       </Link>
 
-      {/* Center: Search */}
+      {/* Search */}
       <div className="flex-1 flex justify-center mx-6">
         <input
           type="text"
@@ -53,7 +47,7 @@ const Navbar: React.FC<NavbarProps> = ({ products, onSearchResults }) => {
         />
       </div>
 
-      {/* Right: Cart + User */}
+      {/* Right */}
       <div className="flex items-center gap-6">
         {/* Cart */}
         <Link to="/cart" className="relative cursor-pointer">
@@ -65,16 +59,22 @@ const Navbar: React.FC<NavbarProps> = ({ products, onSearchResults }) => {
           )}
         </Link>
 
-        {/* User Icon */}
+        {/* User */}
         <div className="relative">
           <div
-            onClick={() => setUserDropdown(!userDropdown)}
+            onClick={() => {
+              if (!user) {
+                navigate("/login"); // redirect to login if not logged in
+              } else {
+                setUserDropdown(!userDropdown); // toggle dropdown if logged in
+              }
+            }}
             className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary transition"
           >
             <User size={20} className="text-textSub" />
           </div>
 
-          {userDropdown && (
+          {userDropdown && user && (
             <div className="absolute right-0 mt-2 w-44 bg-surface border border-gray-200 rounded-lg shadow-lg py-2 z-50">
               <Link
                 to="/profile"
@@ -88,7 +88,10 @@ const Navbar: React.FC<NavbarProps> = ({ products, onSearchResults }) => {
               >
                 Orders
               </Link>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition">
+              <button
+                onClick={() => logout()}
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+              >
                 Logout
               </button>
             </div>
