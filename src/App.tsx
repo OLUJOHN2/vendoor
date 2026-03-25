@@ -5,6 +5,7 @@ import MainContent from "./components/MainContent";
 import ProductPage from "./components/ProductPage";
 import Navbar from "./components/Navbar";
 import LoginPage from "./components/LoginPage";
+import Footer from "./components/Footer"; // <-- import Footer
 import { CartProvider } from "./components/CartContext";
 import { UserProvider } from "./components/UserContext";
 import { FilterProvider } from "./components/FilterContext";
@@ -18,10 +19,12 @@ function App() {
       <UserProvider>
         <CartProvider>
           <FilterProvider>
-            <div className="bg-background text-textMain min-h-screen">
+            <div className="bg-background text-textMain flex flex-col min-h-screen">
+              {/* Navbar */}
               <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
 
-              <div className="flex">
+              {/* Content & Sidebar */}
+              <div className="flex flex-1">
                 {/* Overlay */}
                 {isSidebarOpen && (
                   <div
@@ -51,6 +54,9 @@ function App() {
                   </Routes>
                 </main>
               </div>
+
+              {/* Footer */}
+              <Footer />
             </div>
           </FilterProvider>
         </CartProvider>
