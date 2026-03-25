@@ -23,20 +23,20 @@ function App() {
         <CartProvider>
           <FilterProvider>
             <div className="flex flex-col min-h-screen">
-              {/* Navbar */}
+              {/* Navbar fixed */}
               <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
               <div className="flex flex-1">
                 {/* Sidebar for large screens */}
                 <aside className="hidden lg:block w-64 bg-surface border-r border-gray-100">
-                  <Sidebar />
+                  <Sidebar onClose={() => setSidebarOpen(false)} />
                 </aside>
 
-                {/* Collapsible mobile sidebar */}
+                {/* Mobile sidebar */}
                 {sidebarOpen && (
                   <aside className="fixed inset-0 z-40 bg-black bg-opacity-30 lg:hidden">
                     <div className="absolute left-0 top-0 w-64 h-full bg-surface shadow-lg p-6">
-                      <Sidebar />
+                      <Sidebar onClose={() => setSidebarOpen(false)} />
                       <button
                         onClick={() => setSidebarOpen(false)}
                         className="mt-4 px-4 py-2 bg-primary text-white rounded-lg"
@@ -48,8 +48,8 @@ function App() {
                 )}
 
                 {/* Main content */}
-                <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-background pt-[var(--navbar-height)]">
-                  {/* Added top padding to prevent content under Navbar */}
+                <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-background pt-16">
+                  {/* pt-16 = Navbar height */}
                   <Routes>
                     <Route path="/" element={<MainContent />} />
                     <Route path="/product/:id" element={<ProductPage />} />

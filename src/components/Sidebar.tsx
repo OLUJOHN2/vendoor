@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useFilter } from "./FilterContext";
 
-const Sidebar = ({ onClose }: { onClose: () => void }) => {
+interface SidebarProps {
+  onClose: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const {
     selectedCategory,
     setSelectedCategory,
@@ -13,7 +17,7 @@ const Sidebar = ({ onClose }: { onClose: () => void }) => {
   } = useFilter();
 
   const [categories, setCategories] = useState<string[]>([]);
-  const [keywords] = useState(["apple", "watch", "fashion", "shoes"]);
+  const [keywords] = useState<string[]>(["apple", "watch", "fashion", "shoes"]);
 
   useEffect(() => {
     fetch("https://dummyjson.com/products")
@@ -22,7 +26,7 @@ const Sidebar = ({ onClose }: { onClose: () => void }) => {
         const unique = Array.from(
           new Set(data.products.map((p: any) => p.category)),
         );
-        setCategories(unique);
+        setCategories(unique as string[]);
       });
   }, []);
 
@@ -34,9 +38,9 @@ const Sidebar = ({ onClose }: { onClose: () => void }) => {
 
       <h2 className="text-lg font-semibold mb-6 mt-15">Filters</h2>
 
+      {/* Categories */}
       <div className="mb-8">
         <h3 className="text-sm mb-3">Categories</h3>
-
         <div className="flex flex-wrap gap-2">
           {categories.map((category, i) => (
             <button
@@ -54,9 +58,9 @@ const Sidebar = ({ onClose }: { onClose: () => void }) => {
         </div>
       </div>
 
+      {/* Price */}
       <div className="mb-8">
         <h3 className="text-sm mb-3">Price</h3>
-
         <div className="flex gap-2">
           <input
             type="number"
@@ -79,9 +83,9 @@ const Sidebar = ({ onClose }: { onClose: () => void }) => {
         </div>
       </div>
 
+      {/* Keywords */}
       <div className="mb-8">
         <h3 className="text-sm mb-3">Keywords</h3>
-
         <div className="flex flex-wrap gap-2">
           {keywords.map((k, i) => (
             <button
